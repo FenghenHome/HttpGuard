@@ -43,7 +43,7 @@ function Guard:ipInWhiteList(ip)
 	if _Conf.whiteIpModulesIsOn then --判断是否开启白名单模块
 		self:debug("[ipInWhiteList] whiteIpModules is on.",ip,"")
 
-		if ngx.re.match(ip, _Conf.whiteIpList) then --匹配白名单列表
+		if ngx.re.find(ip, _Conf.whiteIpList) then --匹配白名单列表
 			self:debug("[ipInWhiteList] ip "..ip.. " match white list ".._Conf.whiteIpList,ip,"")
 			return true
 		else
@@ -63,7 +63,7 @@ end
 
 --限制请求速率模块
 function Guard:limitReqModules(ip,reqUri,address)
-	if ngx.re.match(address,_Conf.limitUrlProtect,"i") then	
+	if ngx.re.find(address,_Conf.limitUrlProtect,"ijo") then
 		self:debug("[limitReqModules] address "..address.." match reg ".._Conf.limitUrlProtect,ip,reqUri)	
 		local blackKey = ip.."black"
 		local limitReqKey = ip.."limitreqkey" --定义limitreq key
@@ -92,7 +92,7 @@ end
 
 --302转向模块
 function Guard:redirectModules(ip,reqUri,address)
-	if ngx.re.match(address,_Conf.redirectUrlProtect,"i") then
+	if ngx.re.find(address,_Conf.redirectUrlProtect,"ijo") then
 		self:debug("[redirectModules] address "..address.." match reg ".._Conf.redirectUrlProtect,ip,reqUri)
 		local whiteKey = ip.."white302"
 		local inWhiteList = _Conf.dict:get(whiteKey)
@@ -127,12 +127,12 @@ function Guard:redirectModules(ip,reqUri,address)
 					local key_new = string.sub(key_new,"1","10")					
 					--定义转向的url
 					local newUrl = ''
-					local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+					local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 					if newReqUri then
 						local reqUriNoneArgs = newReqUri[1]
 						local args = newReqUri[2]
 						--删除cckey和keyexpire
-						local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "i")
+						local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "ijo")
 						if newArgs == "" then
 							newUrl = table.concat({reqUriNoneArgs,"?key302=",key_new,"&expire302=",expire})
 						else
@@ -161,8 +161,8 @@ function Guard:redirectModules(ip,reqUri,address)
 				end
 			else
 				--如果没有找到cookie,则检测是否带cckey参数
-				local ccKeyValue = ngx.re.match(reqUri, "key302=([^&]+)","i")
-				local expire = ngx.re.match(reqUri, "expire302=([^&]+)","i")
+				local ccKeyValue = ngx.re.find(reqUri, "key302=([^&]+)","ijo")
+				local expire = ngx.re.find(reqUri, "expire302=([^&]+)","ijo")
 
 				if ccKeyValue and expire then --是否有cckey和keyexpire参数
 					local ccKeyValue = ccKeyValue[1]
@@ -201,12 +201,12 @@ function Guard:redirectModules(ip,reqUri,address)
 						end												
 						--定义转向的url
 						local newUrl = ''
-						local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+						local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 						if newReqUri then
 							local reqUriNoneArgs = newReqUri[1]
 							local args = newReqUri[2]
 							--删除cckey和keyexpire
-							local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "i")
+							local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "ijo")
 							if newArgs == "" then
 								newUrl = table.concat({reqUriNoneArgs,"?key302=",key_new,"&expire302=",expire})
 							else
@@ -238,12 +238,12 @@ function Guard:redirectModules(ip,reqUri,address)
 									
 					--定义转向的url
 					local newUrl = ''
-					local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+					local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 					if newReqUri then
 						local reqUriNoneArgs = newReqUri[1]
 						local args = newReqUri[2]
 						--删除cckey和keyexpire
-						local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "i")
+						local newArgs = ngx.re.gsub(args, "[&?]?key302=[^&]+&?|expire302=[^&]+&?", "", "ijo")
 						if newArgs == "" then
 							newUrl = table.concat({reqUriNoneArgs,"?key302=",key_new,"&expire302=",expire})
 						else
@@ -263,7 +263,7 @@ end
 
 --js跳转模块
 function Guard:JsJumpModules(ip,reqUri,address)
-	if ngx.re.match(address,_Conf.JsJumpUrlProtect,"i") then
+	if ngx.re.find(address,_Conf.JsJumpUrlProtect,"ijo") then
 		self:debug("[JsJumpModules] address "..address.." match reg ".._Conf.JsJumpUrlProtect,ip,reqUri)
 		local whiteKey = ip.."whitejs"	
 		local inWhiteList = _Conf.dict:get(whiteKey)
@@ -312,12 +312,12 @@ function Guard:JsJumpModules(ip,reqUri,address)
 
 					--定义转向的url
 					local newUrl = ''
-					local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+					local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 					if newReqUri then
 						local reqUriNoneArgs = newReqUri[1]
 						local args = newReqUri[2]
 						--删除cckey和keyexpire
-						local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "i")
+						local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "ijo")
 						if newArgs == "" then
 							newUrl = table.concat({reqUriNoneArgs,"?keyjs=",key_new,"&expirejs=",expire})
 						else
@@ -337,8 +337,8 @@ function Guard:JsJumpModules(ip,reqUri,address)
 				end
 			else
 				--如果没有cookie凭证,检测url是否带有cckey参数
-				local ccKeyValue = ngx.re.match(reqUri, "keyjs=([^&]+)","i")
-				local expire = ngx.re.match(reqUri, "expirejs=([^&]+)","i")
+				local ccKeyValue = ngx.re.find(reqUri, "keyjs=([^&]+)","ijo")
+				local expire = ngx.re.find(reqUri, "expirejs=([^&]+)","ijo")
 
 				if ccKeyValue and expire then
 					local ccKeyValue = ccKeyValue[1]
@@ -374,12 +374,12 @@ function Guard:JsJumpModules(ip,reqUri,address)
 						local key_new = string.sub(key_new,"1","10")				
 						--定义转向的url
 						local newUrl = ''
-						local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+						local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 						if newReqUri then
 							local reqUriNoneArgs = newReqUri[1]
 							local args = newReqUri[2]
 							--删除cckey和keyexpire
-							local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "i")
+							local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "ijo")
 							if newArgs == "" then
 								newUrl = table.concat({reqUriNoneArgs,"?keyjs=",key_new,"&expirejs=",expire})
 							else
@@ -414,12 +414,12 @@ function Guard:JsJumpModules(ip,reqUri,address)
 									
 					--定义转向的url
 					local newUrl = ''
-					local newReqUri = ngx.re.match(reqUri, "(.*?)\\?(.+)")
+					local newReqUri = ngx.re.find(reqUri, "(.*?)\\?(.+)")
 					if newReqUri then
 						local reqUriNoneArgs = newReqUri[1]
 						local args = newReqUri[2]
 						--删除cckey和keyexpire
-						local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "i")
+						local newArgs = ngx.re.gsub(args, "[&?]?keyjs=[^&]+&?|expirejs=[^&]+&?", "", "ijo")
 						if newArgs == "" then
 							newUrl = table.concat({reqUriNoneArgs,"?keyjs=",key_new,"&expirejs=",expire})
 						else
@@ -442,7 +442,7 @@ end
 
 --cookie验证模块
 function Guard:cookieModules(ip,reqUri,address)
-	if ngx.re.match(address,_Conf.cookieUrlProtect,"i") then
+	if ngx.re.find(address,_Conf.cookieUrlProtect,"ijo") then
 		self:debug("[cookieModules] address "..address.." match reg ".._Conf.cookieUrlProtect,ip,reqUri)
 		local whiteKey = ip.."whitecookie"
 		local inWhiteList = _Conf.dict:get(whiteKey)

@@ -20,11 +20,11 @@ end
 
 
 --获取验证码
-if ngx.re.match(uri,"/get-captcha.jpg$","i") then
+if ngx.re.find(uri,"/get-captcha.jpg$","ijo") then
 	Guard:getCaptcha()
 
 --验证验证码
-elseif ngx.re.match(uri,"/verify-captcha.jpg$","i") then
+elseif ngx.re.find(uri,"/verify-captcha.jpg$","ijo") then
 	Guard:verifyCaptcha(ip)
 
 --过滤请求
